@@ -176,7 +176,8 @@ textarea:focus {
 }
 
 .primary-button,
-.secondary-button {
+.secondary-button,
+.utility-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -187,6 +188,7 @@ textarea:focus {
   padding: 0 16px;
   font-weight: 750;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .primary-button {
@@ -199,6 +201,14 @@ textarea:focus {
   background: #ffffff;
   color: #176b87;
   border-color: #a8bdc9;
+}
+
+.utility-link {
+  margin-top: 12px;
+  color: #176b87;
+  font-size: 14px;
+  font-weight: 750;
+  justify-content: flex-start;
 }
 
 .primary-button:disabled,
@@ -261,6 +271,13 @@ textarea:focus {
 .status-panel p {
   margin-bottom: 0;
   color: #8a2d2d;
+}
+
+.status-panel .help-text {
+  max-width: 920px;
+  margin-top: 8px;
+  color: #5d6b78;
+  line-height: 1.45;
 }
 
 .diagnostics {

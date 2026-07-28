@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { AlertCircle, Printer, RefreshCw, Send } from 'lucide-react';
+import { AlertCircle, ExternalLink, Printer, RefreshCw, Send } from 'lucide-react';
 import './styles.css';
 
 const SERVICE_URL_STORAGE_KEY = 'dymo-printer-service-url';
@@ -69,6 +69,14 @@ function normalizeServiceUrl(value) {
   return value.trim().replace(/\/+$/, '');
 }
 
+function getPreferredServiceUrl(serviceUrl) {
+  if (serviceUrl && serviceUrl !== 'Auto detect') {
+    return normalizeServiceUrl(serviceUrl);
+  }
+
+  return localStorage.getItem(SERVICE_URL_STORAGE_KEY) || DEFAULT_SERVICE_CANDIDATES[0];
+}
+
 async function checkService(serviceUrl) {
   const statusResponse = await fetch(`${serviceUrl}/dcd/api/check-api-status`);
   return statusResponse.ok && (await statusResponse.text()) === 'true';
@@ -93,6 +101,7 @@ Status: Generated`);
     () => printers.find((printer) => printer.name === selectedPrinter),
     [printers, selectedPrinter],
   );
+  const preferredServiceUrl = getPreferredServiceUrl(serviceUrl);
 
   async function resolveServiceUrl() {
     const customUrl = serviceUrl === 'Auto detect' ? '' : normalizeServiceUrl(serviceUrl);
@@ -290,6 +299,16 @@ Status: Generated`);
               <RefreshCw aria-hidden="true" size={18} />
               Refresh printers
             </button>
+
+            <a
+              className="utility-link"
+              href={`${preferredServiceUrl}/dcd/api/check-api-status`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <ExternalLink aria-hidden="true" size={17} />
+              Open DYMO service check
+            </a>
           </section>
 
           <section className="panel">
@@ -335,6 +354,12 @@ Status: Generated`);
           <div>
             <strong>{status}</strong>
             {error && <p>{error}</p>}
+            {error && (
+              <p className="help-text">
+                On the printer computer, install and open DYMO Connect, then open the DYMO service check link.
+                If Chrome shows a certificate warning, choose Advanced and proceed, then return here and refresh printers.
+              </p>
+            )}
             {environment && (
               <dl className="diagnostics">
                 <div>
