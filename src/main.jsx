@@ -10,6 +10,21 @@ const DEFAULT_SERVICE_CANDIDATES = [
   'http://127.0.0.1:41951',
   'http://localhost:41951',
 ];
+const LABEL_STOCK_STORAGE_KEY = 'dymo-printer-label-stock';
+const ADDRESS_LABEL_STOCKS = [
+  {
+    label: 'S0722370 / LW 28x89mm - Standard Address Labels',
+    paperName: 'LW 28x89mm',
+  },
+  {
+    label: '99010 - Standard Address Labels',
+    paperName: '99010 Standard Address',
+  },
+  {
+    label: '30252 - Address Labels',
+    paperName: '30252 Address',
+  },
+];
 
 function escapeXml(value) {
   return value
@@ -20,12 +35,12 @@ function escapeXml(value) {
     .replaceAll("'", '&apos;');
 }
 
-function createAddressLabelXml(text) {
+function createAddressLabelXml(text, paperName) {
   return `<?xml version="1.0" encoding="utf-8"?>
 <DieCutLabel Version="8.0" Units="twips">
   <PaperOrientation>Landscape</PaperOrientation>
   <Id>Address</Id>
-  <PaperName>30252 Address</PaperName>
+  <PaperName>${escapeXml(paperName)}</PaperName>
   <DrawCommands>
     <RoundRectangle X="0" Y="0" Width="1581" Height="5040" Rx="270" Ry="270" />
   </DrawCommands>
@@ -88,6 +103,9 @@ function App() {
   const [environment, setEnvironment] = useState(null);
   const [serviceUrl, setServiceUrl] = useState(
     () => localStorage.getItem(SERVICE_URL_STORAGE_KEY) || 'Auto detect',
+  );
+  const [selectedLabelStock, setSelectedLabelStock] = useState(
+    () => localStorage.getItem(LABEL_STOCK_STORAGE_KEY) || ADDRESS_LABEL_STOCKS[0].paperName,
   );
   const [labelText, setLabelText] = useState(`Sample ID: SAMP-0001
 Lot: LOT-2026-001
@@ -187,7 +205,7 @@ Status: Generated`);
         },
         body: new URLSearchParams({
           printerName: selectedPrinter,
-          labelXml: createAddressLabelXml(labelText),
+          labelXml: createAddressLabelXml(labelText, selectedLabelStock),
           labelSetXml: '',
           printParamsXml: '',
         }),
@@ -273,6 +291,23 @@ Status: Generated`);
                 {printers.map((printer) => (
                   <option key={printer.name} value={printer.name}>
                     {printer.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="field">
+              <span>Label stock</span>
+              <select
+                value={selectedLabelStock}
+                onChange={(event) => {
+                  setSelectedLabelStock(event.target.value);
+                  localStorage.setItem(LABEL_STOCK_STORAGE_KEY, event.target.value);
+                }}
+              >
+                {ADDRESS_LABEL_STOCKS.map((stock) => (
+                  <option key={stock.paperName} value={stock.paperName}>
+                    {stock.label}
                   </option>
                 ))}
               </select>
